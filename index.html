@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ratul – AI Chatbot</title>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: 2rem auto; }
+    #chat { border: 1px solid #ccc; padding: 1rem; height: 400px; overflow-y: auto; }
+    .msg { margin: 0.5rem 0; }
+    .user { color: blue; }
+    .bot  { color: green; }
+    #input { width: calc(100% - 60px); padding: 0.5rem; }
+    #send  { padding: 0.5rem; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@nomic-ai/gpt4all-browser/dist/gpt4all.min.js"></script>
+</head>
+<body>
+
+<h1>Ratul – AI Chatbot</h1>
+<div id="chat"></div>
+<input id="input" placeholder="Type your message…" />
+<button id="send">Send</button>
+
+<script>
+(async () => {
+  // 1. Load the quantized GPT4All model (approx. 100 MB)
+  const MODEL_URL = 'https://huggingface.co/nomic-ai/gpt4all-llora/resolve/main/gpt4all-lora-quantized.bin';
+  const gpt = await GPT4All.GPT4AllWeb(MODEL_URL, 'gpt4all.bin');
+  await gpt.init();
+
+  // 2. Utilities to render chat
+  const chatEl = document.getElementById('chat');
+  function addMessage(text, cls) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + cls;
+    div.textContent = text;
+    chatEl.append(div);
+    chatEl.scrollTop = chatEl.scrollHeight;
+  }
+
+  // 3. Handle user input
+  document.getElementById('send').onclick = async () => {
+    const input = document.getElementById('input');
+    const question = input.value.trim();
+    if (!question) return;
+    addMessage('You: ' + question, 'user');
+    input.value = '';
+    
+    // 4. Generate bot reply
+    const response = await gpt.chat(question);
+    addMessage('Ratul: ' + response, 'bot');
+  };
+})();
+</script>
+
+</body>
+</html>
